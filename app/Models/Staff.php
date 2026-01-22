@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 
 class Staff extends Authenticatable
 {
 
-       use HasRoles;
+       use HasRoles,SoftDeletes;
 
     protected $guard_name = 'staffs'; 
 

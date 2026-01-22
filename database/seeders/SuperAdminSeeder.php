@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class SuperAdminSeeder extends Seeder
@@ -29,6 +30,12 @@ class SuperAdminSeeder extends Seeder
         );
 
         $user->assignRole('super-admin');
+       
+          // Assign all web permissions to this role (optional, if you have seeded permissions)
+        $allWebPermissions = Permission::where('guard_name', 'web')->pluck('name');
+        $user->syncPermissions($allWebPermissions);
+
+        $this->command->info('Super admin created with all web permissions!');
         
     
     }

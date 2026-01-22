@@ -12,12 +12,12 @@ const CreateRole = ({ permissions }) => {
         permissions: [],
     })
 
-    const togglePermission = (id) => {
+    const togglePermission = (name) => {
         setData(
             'permissions',
-            data.permissions.includes(id)
-                ? data.permissions.filter(p => p !== id)
-                : [...data.permissions, id]
+            data.permissions.includes(name)
+                ? data.permissions.filter(p => p !== name)
+                : [...data.permissions, name]
         )
     }
 
@@ -31,16 +31,15 @@ const CreateRole = ({ permissions }) => {
     }
 
     return (
-        <AuthenticatedLayout
-            header={
+        <>
+            
                 <h2 className="text-xl font-semibold text-slate-800">
                     Create Role
                 </h2>
-            }
-        >
+            
             <Head title="Create Role" />
 
-            <div className="py-12 bg-slate-50 min-h-screen">
+            <div className="py-12 min-h-screen">
                 <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
                     <div className="bg-white rounded-xl shadow-md border border-slate-200">
 
@@ -109,8 +108,8 @@ const CreateRole = ({ permissions }) => {
                                             >
                                                 <input
                                                     type="checkbox"
-                                                    checked={data.permissions.includes(permission.id)}
-                                                    onChange={() => togglePermission(permission.id)}
+                                                    checked={data.permissions.includes(permission.name)}
+                                                    onChange={() => togglePermission(permission.name)}
                                                     className="rounded text-emerald-600 focus:ring-emerald-500"
                                                 />
                                                 <span className="text-sm text-slate-700">
@@ -148,7 +147,7 @@ const CreateRole = ({ permissions }) => {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </>
     )
 }
 

@@ -16,16 +16,13 @@ const CreatePermission = ({ guards }) => {
     };
 
     return (
-        <AuthenticatedLayout
-            header={
+        <>
                 <h2 className="text-xl font-semibold text-slate-800">
                     Create Permission
                 </h2>
-            }
-        >
             <Head title="Create Permission" />
 
-            <div className="py-12 bg-slate-50 min-h-screen">
+            <div className="py-4 min-h-screen">
                 <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
                     <div className="bg-white rounded-xl shadow-md border border-slate-200">
                         <form onSubmit={submit} className="p-6 space-y-6">
@@ -119,7 +116,7 @@ const CreatePermission = ({ guards }) => {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </>
     );
 };
 

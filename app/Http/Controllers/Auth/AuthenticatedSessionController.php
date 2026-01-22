@@ -16,8 +16,18 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): Response
+    public function create()
     {
+        if (Auth::guard('web')->user()) {
+            return redirect()->intended(route("dashboard"));
+        } 
+        elseif (Auth::guard('hotels')->user()) {
+            return redirect()->intended(route("hotel_dashboard"));
+        }
+         elseif (Auth::guard('staffs')->user()) {
+            return redirect()->intended(route("staff_dashboard"));
+        }
+
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
@@ -34,27 +44,35 @@ class AuthenticatedSessionController extends Controller
         // $request->session()->regenerate();
 
         // return redirect()->intended(route('dashboard', absolute: false));
+
         $credentials = $request->validate([
             'email' => ['required', 'email'],
-            'password' => ['required'],
+            'password' => ['required'],    
         ]);
+
         // 1️ Try ADMIN guard first
-        if (Auth::guard('web')->attempt($credentials)) {
-            $request->session()->regenerate();
+        if (Auth::guard('web')->attempt(array_merge($credentials,[
+            'status'=>'active'
+        ]))) {
+            $request->session()->regenerate(); 
             return redirect()->intended(route('dashboard'));
         }
 
         // 2️ Try USER guard
-        if (Auth::guard('hotels')->attempt($credentials)) {
+        if (Auth::guard('hotels')->attempt(array_merge($credentials,[
+            'status'=>'active'
+        ]))) {
             $request->session()->regenerate();
-            return to_route("hotel_dashboard");
-        }
-
-        // 3 Staff 
-        if (Auth::guard('staffs')->attempt($credentials)) {
+            return redirect()->intended(route("hotel_dashboard"))->with('reload', true);
+            }
+            // 3 Staff 
+            if (Auth::guard('staffs')->attempt(array_merge($credentials,[
+                'status'=>'active'
+            ]))) {
+            // dd(Auth::guard('staffs')->user());
             $request->session()->regenerate();
-            return redirect()->intended(route('staff_dashboard'));
-        }
+            return redirect()->intended(route('staff_dashboard'))->with('reload', true);
+            }
 
         return back()->withErrors([
             'email' => 'Invalid credentials.',
@@ -67,13 +85,37 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect()->intended(route('login'))->with('reload', true);
+    }
+    /**
+     * Destroy an authenticated session.
+     */
+    public function hotel_destroy(Request $request): RedirectResponse
+    {
         Auth::guard('hotels')->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect()->intended(route('login'))->with('reload', true);
+    }
+    /**
+     * Destroy an authenticated session.
+     */
+    public function staff_destroy(Request $request): RedirectResponse
+    {
         Auth::guard('staffs')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->intended(route('login'))->with('reload', true);
     }
 }

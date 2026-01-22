@@ -1,104 +1,135 @@
-import Checkbox from '@/Components/Checkbox';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from "@inertiajs/react";
+import { useState } from "react";
+import { GoEye } from "react-icons/go";
+import { IoEyeOffOutline } from "react-icons/io5";
 
-export default function Login({ status, canResetPassword }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
-        password: '',
+export default function Login() {
+    const { data, setData, post, processing, errors } = useForm({
+        email: "",
+        password: "",
         remember: false,
     });
 
-    const submit = (e) => {
-        e.preventDefault();
+    const [showPassword, setShowPassword] = useState(false);
 
-        post(route('login'), {
-            onFinish: () => reset('password'),
-        });
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        post(route("login"));
     };
 
-console.log(errors)
     return (
-        <GuestLayout>
-            <Head title="Log in" />
+        <>
+            <Head title="Login" />
 
-            {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
-                    {status}
-                </div>
-            )}
+            <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+                <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+                    <h1 className="text-2xl font-semibold text-center mb-6 tracking-wide">
+                        Login
+                    </h1>
 
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="email" value="Email" />
+                    <form onSubmit={handleSubmit} className="space-y-4">
 
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        isFocused={true}
-                        onChange={(e) => setData('email', e.target.value)}
-                    />
+                        {/* Email */}
+                        <div>
+                            <label className="block text-sm font-medium mb-1">
+                                Email
+                            </label>
+                            <input
+                                type="email"
+                                value={data.email}
+                                onChange={(e) => setData("email", e.target.value)}
+                                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-black"
+                                required
+                                autoFocus
+                            />
+                            {errors.email && (
+                                <p className="text-red-600 text-sm mt-1">
+                                    {errors.email}
+                                </p>
+                            )}
+                        </div>
 
-                    <InputError message={errors.email} className="mt-2" />
-                </div>
+                        {/* Password */}
+                        <div>
+                            <label className="block text-sm font-medium mb-1">
+                                Password
+                            </label>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={data.password}
+                                    onChange={(e) =>
+                                        setData("password", e.target.value)
+                                    }
+                                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-black pr-10"
+                                    required
+                                />
 
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                    />
+                                {/* Show / Hide Icon */}
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowPassword(!showPassword)
+                                    }
+                                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-black"
+                                >
+                                    {/* 🔁 REPLACE THIS WITH YOUR OWN ICON */}
+                                    {showPassword ? <IoEyeOffOutline /> : <GoEye/>}
+                                </button>
+                            </div>
 
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
+                            {errors.password && (
+                                <p className="text-red-600 text-sm mt-1">
+                                    {errors.password}
+                                </p>
+                            )}
+                        </div>
 
-                <div className="mt-4 block">
-                    <label className="flex items-center">
-                        <Checkbox
-                            name="remember"
-                            checked={data.remember}
-                            onChange={(e) =>
-                                setData('remember', e.target.checked)
-                            }
-                        />
-                        <span className="ms-2 text-sm text-gray-600">
-                            Remember me
-                        </span>
-                    </label>
-                </div>
+                        {/* Remember & Forgot */}
+                        <div className="flex items-center justify-between">
+                            <label className="flex items-center space-x-2 text-sm text-gray-700">
+                                <input
+                                    type="checkbox"
+                                    checked={data.remember}
+                                    onChange={(e) =>
+                                        setData("remember", e.target.checked)
+                                    }
+                                    className="rounded border-gray-300 text-black focus:ring-black"
+                                />
+                                <span>Remember me</span>
+                            </label>
 
-                <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            <Link
+                                href={route("password.request")}
+                                className="text-sm text-black hover:underline"
+                            >
+                                Forgot password?
+                            </Link>
+                        </div>
+
+                        {/* Submit */}
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className="w-full bg-black text-white py-2 rounded font-semibold hover:bg-gray-800 transition"
                         >
-                            Forgot your password?
-                        </Link>
-                    )}
+                            Login
+                        </button>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
-                    </PrimaryButton>
+                        {/* Error Box */}
+                        {Object.keys(errors).length > 0 && (
+                            <div className="mt-4 bg-red-50 text-red-700 p-3 rounded">
+                                <ul className="list-disc list-inside text-sm">
+                                    {Object.values(errors).map((err, i) => (
+                                        <li key={i}>{err}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </form>
                 </div>
-            </form>
-           <div>
-           
-           </div>
-        </GuestLayout>
+            </div>
+        </>
     );
 }

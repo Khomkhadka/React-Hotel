@@ -2,6 +2,11 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link } from "@inertiajs/react";
 import { useState } from "react";
+import { CiEdit } from "react-icons/ci";
+import { TiDeleteOutline } from "react-icons/ti";
+import { MdDelete } from "react-icons/md";
+import SearchInput from "@/Components/SearchInput";
+import Can from "@/Components/Can";
 
 export default function ViewPermissions({ permissions, filters }) {
     const [activeTab, setActiveTab] = useState("web");
@@ -10,35 +15,36 @@ export default function ViewPermissions({ permissions, filters }) {
     );
 
     return (
-        <AuthenticatedLayout
-            header={
+        <>
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Permissions
                 </h2>
-            }
-        >
+            
             <Head title="permissions" />
 
             <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div className="mx-auto sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6">
                             {/* Header Actions */}
                             <div className="mb-6 flex items-center justify-between">
-                                {/* Add permission */}
+
+                                {/* Search */}
+                                <SearchInput 
+                                intialValue={filters.search}
+                                routeName="permission.index"
+                                placeholder="/Search Permissions..."
+                                />
+
+                                <Can permission='create-permission'>
+                                             {/* Add permission */}
+                                         
                                 <Link href={route("permission.create")}>
                                     <PrimaryButton>
                                         + Add Permission
                                     </PrimaryButton>
                                 </Link>
-
-                                {/* Search */}
-                                <input
-                                    type="text"
-                                    placeholder="Search roles..."
-                                    defaultValue={filters?.search || ""}
-                                    className="w-64 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                />
+                                </Can>
                             </div>
 
                             {/* Design-based navbar */}
@@ -102,13 +108,48 @@ export default function ViewPermissions({ permissions, filters }) {
                                                             {index + 1}
                                                         </td>
                                                         <td className="px-4 py-3 text-sm font-medium text-gray-800">
-                                                            {permission.name}
+                                                            {permission.display_name}
                                                         </td>
                                                         <td className="px-4 py-3 text-sm text-gray-600">
                                                             {new Date(
                                                                 permission.created_at
                                                             ).toLocaleDateString()}
                                                         </td>
+                                                         {/* Actions */}
+                                                    <td className="px-4 py-3 text-sm">
+                                                        <div className="flex gap-5 mr-0">
+                                                            <Can permission='edit-permission'>
+                                                                {/* Edit */}
+                                                            <Link
+                                                                href={ route("permission.edit",
+                                                                    permission.id)}
+                                                                   
+                                                                // className="rounded-md bg-indigo-600 px-3 py-1 text-white hover:bg-indigo-700"
+                                                            >
+                                                               < CiEdit className="text-2xl text-[#4F46E5]"/>
+                                                            </Link>
+                                                            </Can>
+
+                                                            {/* Delete */}
+                                                            <Can permission='delete-permission'>
+                                                                <Link
+                                                                as="button"
+                                                                method="delete"
+                                                                href={route("permission.destroy",
+                                                                    permission.id)}
+                                                                    
+                                                                // className="rounded-md bg-red-600 px-3 py-1 text-white hover:bg-red-700"
+                                                                onBefore={() =>
+                                                                    confirm(
+                                                                        "Are you sure you want to delete this role?"
+                                                                    )
+                                                                }
+                                                            >
+                                                                <MdDelete className="text-2xl text-red-500" />
+                                                            </Link>
+                                                            </Can>
+                                                        </div>
+                                                    </td>
                                                     </tr>
                                                 )
                                             )
@@ -153,6 +194,13 @@ export default function ViewPermissions({ permissions, filters }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </>
     );
 }
+
+/* Layout */
+ViewPermissions.layout = (page) => (
+    <AuthenticatedLayout header='Permissions'>
+        {page}
+    </AuthenticatedLayout>
+);
